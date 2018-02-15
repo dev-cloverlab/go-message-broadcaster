@@ -102,8 +102,9 @@ func (m *Server) Listen() {
 			broadcast(clients, msg)
 
 		case <-m.done:
-			for _, c := range clients {
-				m.delClient <- c
+			l := len(clients)
+			for i := 0; i < l; i++ {
+				m.delClient <- clients[i]
 			}
 			return
 		default:
