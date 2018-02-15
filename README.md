@@ -140,20 +140,24 @@ There are following types of events:
 - OnAddClient - emit when new client adding to the server
 - OnDelClient - emit when client deleting from server
 
-EventMessage will be sent all connected clients.
+# Handlers 
 
-# Request handlers 
-
-go-message-broadcaster can define handlers for each message as following type:
+go-message-broadcaster can define several handlers for each message and event as following types:
 
 ```go
 type MessageHandlerID int
 type MessageHandler func(msg *RequestMessage, ctx context.Context) (*ResponseMessage, error)
 type MessageHandlers map[MessageHandlerID]MessageHandler
+
+type EventType int
+type EventHandler func(msg *EventMessage, ctx context.Context) (*ResponseMessage, error)
+type EventHandlers map[EventType]EventHandler
+
 ```
 
 These handlers are set when the server initialized.  
-These handlers are called when the server received the request from clients.  
+These message handlers are called when the server received the request from clients.  
+These event handlers are called when the client adding or deleting.  
 
 # Contribution
 
