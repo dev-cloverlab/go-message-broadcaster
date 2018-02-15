@@ -8,22 +8,33 @@ import (
 )
 
 type Server struct {
-	addClient    chan *Client
-	delClient    chan *Client
-	err          chan error
-	broadcast    chan *ResponseMessage
-	messageQueue chan *RequestMessage
-	done         chan struct{}
+	addClient     chan *Client
+	delClient     chan *Client
+	err           chan error
+	broadcast     chan *ResponseMessage
+	messageQueue  chan *RequestMessage
+	done          chan struct{}
+	ctx           context.Context
+	eventHandlers EventHandlers
 }
 
-func NewServer(ctx context.Context, messageHandlers MessageHandlers) *Server {
+func NewServer(ctx context.Context, messageHandlers MessageHandlers, eventHandlers EventHandlers) *Server {
+	if messageHandlers == nil {
+		panic(fmt.Errorf("messageHandlers is nil. You are required to set handlers even if its empty"))
+	}
+	if eventHandlers == nil {
+		panic(fmt.Errorf("eventHandlers is nil. You are required to set handlers even if its empty"))
+	}
+
 	sv := &Server{
-		addClient:    make(chan *Client),
-		delClient:    make(chan *Client),
-		err:          make(chan error),
-		broadcast:    make(chan *ResponseMessage),
-		messageQueue: make(chan *RequestMessage),
-		done:         make(chan struct{}),
+		addClient:     make(chan *Client),
+		delClient:     make(chan *Client),
+		err:           make(chan error),
+		broadcast:     make(chan *ResponseMessage),
+		messageQueue:  make(chan *RequestMessage),
+		done:          make(chan struct{}),
+		ctx:           ctx,
+		eventHandlers: eventHandlers,
 	}
 
 	go func() {
@@ -82,7 +93,9 @@ func (m *Server) Listen() {
 
 		case c := <-m.addClient:
 			clients = append(clients, c)
-			emit(clients, NewEventMessage(OnAddClient, c.ID))
+			if fn, ok := m.eventHandlers[OnAddClient]; ok {
+				fn(NewEventMessage(OnAddClient, c.ID), m.ctx)
+			}
 
 		case c := <-m.delClient:
 			for i, v := range clients {
@@ -92,7 +105,9 @@ func (m *Server) Listen() {
 				clients = append(clients[:i], clients[i+1:]...)
 				break
 			}
-			emit(clients, NewEventMessage(OnDelClient, c.ID))
+			if fn, ok := m.eventHandlers[OnDelClient]; ok {
+				fn(NewEventMessage(OnDelClient, c.ID), m.ctx)
+			}
 			c.OnDelete()
 
 		case err := <-m.err:
@@ -110,12 +125,6 @@ func (m *Server) Listen() {
 		default:
 			time.Sleep(time.Millisecond)
 		}
-	}
-}
-
-func emit(clients []*Client, ev *EventMessage) {
-	for _, c := range clients {
-		go c.OnEvent(ev)
 	}
 }
 

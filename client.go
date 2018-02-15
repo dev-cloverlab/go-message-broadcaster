@@ -35,10 +35,6 @@ func (m *Client) OnSend(msg *ResponseMessage) {
 	m.message <- msg
 }
 
-func (m *Client) OnEvent(msg *EventMessage) {
-	m.event <- msg
-}
-
 func (m *Client) OnDelete() {
 	if err := m.conn.Close(); err != nil {
 		m.sv.OnError(err)

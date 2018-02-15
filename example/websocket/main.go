@@ -38,15 +38,27 @@ func main() {
 	flag.Parse()
 
 	// Create message handlers for each message
-	handlers := broadcaster.MessageHandlers{
+	messageHandlers := broadcaster.MessageHandlers{
 		1: func(msg *broadcaster.RequestMessage, c context.Context) (*broadcaster.ResponseMessage, error) {
 			// Create broadcasting message object (This is simple echo handler).
 			return broadcaster.NewResponseMessage(broadcaster.All, msg.Body), nil
 		},
 	}
 
+	// Create event handlers for each server event
+	eventHandlers := broadcaster.EventHandlers{
+		broadcaster.OnAddClient: func(msg *broadcaster.EventMessage, c context.Context) (*broadcaster.ResponseMessage, error) {
+			// Create broadcasting message object (This is simple echo handler).
+			return broadcaster.NewResponseMessage(broadcaster.All, []byte("OnAddClient")), nil
+		},
+		broadcaster.OnDelClient: func(msg *broadcaster.EventMessage, c context.Context) (*broadcaster.ResponseMessage, error) {
+			// Create broadcasting message object (This is simple echo handler).
+			return broadcaster.NewResponseMessage(broadcaster.All, []byte("OnDelClient")), nil
+		},
+	}
+
 	// Initialize the server and listen all clients
-	sv := broadcaster.NewServer(context.Background(), handlers)
+	sv := broadcaster.NewServer(context.Background(), messageHandlers, eventHandlers)
 	go sv.Listen()
 
 	http.Handle(*endpoint, websocket.Handler(func(ws *websocket.Conn) {
