@@ -13,6 +13,7 @@ type Server struct {
 	err          chan error
 	broadcast    chan *ResponseMessage
 	messageQueue chan *RequestMessage
+	done         chan struct{}
 }
 
 func NewServer(ctx context.Context, messageHandlers MessageHandlers) *Server {
@@ -22,6 +23,7 @@ func NewServer(ctx context.Context, messageHandlers MessageHandlers) *Server {
 		err:          make(chan error),
 		broadcast:    make(chan *ResponseMessage),
 		messageQueue: make(chan *RequestMessage),
+		done:         make(chan struct{}),
 	}
 
 	go func() {
@@ -69,6 +71,10 @@ func (m *Server) OnEnqueueMessage(msg *RequestMessage) {
 	m.messageQueue <- msg
 }
 
+func (m *Server) OnDone() {
+	m.done <- struct{}{}
+}
+
 func (m *Server) Listen() {
 	clients := []*Client{}
 	for {
@@ -95,6 +101,11 @@ func (m *Server) Listen() {
 		case msg := <-m.broadcast:
 			broadcast(clients, msg)
 
+		case <-m.done:
+			for _, c := range clients {
+				m.delClient <- c
+			}
+			return
 		default:
 			time.Sleep(time.Millisecond)
 		}
