@@ -93,7 +93,7 @@ func (m *Server) Listen() {
 
 		case c := <-m.addClient:
 			clients = append(clients, c)
-			go m.emit(c.ID, OnAddClient)
+			m.emit(c.ID, OnAddClient)
 
 		case c := <-m.delClient:
 			for i, v := range clients {
@@ -103,7 +103,7 @@ func (m *Server) Listen() {
 				clients = append(clients[:i], clients[i+1:]...)
 				break
 			}
-			go m.emit(c.ID, OnDelClient)
+			m.emit(c.ID, OnDelClient)
 			c.OnDelete()
 
 		case err := <-m.err:
@@ -131,7 +131,7 @@ func (m *Server) emit(cid ClientID, et EventType) {
 		} else {
 			res.SenderID = cid
 			res.HandlerID = 0
-			m.OnBroadCast(res)
+			go m.OnBroadCast(res)
 		}
 	}
 }
