@@ -93,9 +93,7 @@ func (m *Server) Listen() {
 
 		case c := <-m.addClient:
 			clients = append(clients, c)
-			if fn, ok := m.eventHandlers[OnAddClient]; ok {
-				fn(NewEventMessage(OnAddClient, c.ID), m.ctx)
-			}
+			m.emit(c.ID, OnAddClient)
 
 		case c := <-m.delClient:
 			for i, v := range clients {
@@ -105,9 +103,7 @@ func (m *Server) Listen() {
 				clients = append(clients[:i], clients[i+1:]...)
 				break
 			}
-			if fn, ok := m.eventHandlers[OnDelClient]; ok {
-				fn(NewEventMessage(OnDelClient, c.ID), m.ctx)
-			}
+			m.emit(c.ID, OnDelClient)
 			c.OnDelete()
 
 		case err := <-m.err:
@@ -124,6 +120,18 @@ func (m *Server) Listen() {
 			return
 		default:
 			time.Sleep(time.Millisecond)
+		}
+	}
+}
+
+func (m *Server) emit(cid ClientID, et EventType) {
+	if fn, ok := m.eventHandlers[et]; ok {
+		if res, err := fn(NewEventMessage(et, cid), m.ctx); err != nil {
+			m.OnError(err)
+		} else {
+			res.SenderID = cid
+			res.HandlerID = 0
+			m.OnBroadCast(res)
 		}
 	}
 }
