@@ -93,7 +93,7 @@ func (m *Server) Listen() {
 
 		case c := <-m.addClient:
 			clients = append(clients, c)
-			m.emit(c.ID, OnAddClient)
+			go m.emit(c.ID, OnAddClient)
 
 		case c := <-m.delClient:
 			for i, v := range clients {
