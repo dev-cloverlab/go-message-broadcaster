@@ -103,7 +103,7 @@ func (m *Server) Listen() {
 				clients = append(clients[:i], clients[i+1:]...)
 				break
 			}
-			m.emit(c.ID, OnDelClient)
+			go m.emit(c.ID, OnDelClient)
 			c.OnDelete()
 
 		case err := <-m.err:
