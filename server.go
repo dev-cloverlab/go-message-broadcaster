@@ -14,6 +14,7 @@ type Server struct {
 	broadcast     chan *ResponseMessage
 	messageQueue  chan *RequestMessage
 	done          chan struct{}
+	closed        chan struct{}
 	ctx           context.Context
 	eventHandlers EventHandlers
 }
@@ -33,22 +34,28 @@ func NewServer(ctx context.Context, messageHandlers MessageHandlers, eventHandle
 		broadcast:     make(chan *ResponseMessage),
 		messageQueue:  make(chan *RequestMessage),
 		done:          make(chan struct{}),
+		closed:        make(chan struct{}),
 		ctx:           ctx,
 		eventHandlers: eventHandlers,
 	}
 
 	go func() {
-		for msg := range sv.messageQueue {
-			if cmd, ok := messageHandlers[msg.HandlerID]; ok {
-				if res, err := cmd(msg, ctx); err != nil {
-					sv.OnError(err)
+		select {
+		case <-sv.closed:
+			return
+		case <-sv.messageQueue:
+			for msg := range sv.messageQueue {
+				if cmd, ok := messageHandlers[msg.HandlerID]; ok {
+					if res, err := cmd(msg, ctx); err != nil {
+						sv.OnError(err)
+					} else {
+						res.SenderID = msg.SenderID
+						res.HandlerID = msg.HandlerID
+						sv.OnBroadCast(res)
+					}
 				} else {
-					res.SenderID = msg.SenderID
-					res.HandlerID = msg.HandlerID
-					sv.OnBroadCast(res)
+					sv.OnError(fmt.Errorf("undefined message handler specified `%d'", msg.HandlerID))
 				}
-			} else {
-				sv.OnError(fmt.Errorf("undefined message handler specified `%d'", msg.HandlerID))
 			}
 		}
 	}()
@@ -117,6 +124,7 @@ func (m *Server) Listen() {
 			for i := 0; i < l; i++ {
 				m.delClient <- clients[i]
 			}
+			close(m.closed)
 			return
 		default:
 			time.Sleep(time.Millisecond)
