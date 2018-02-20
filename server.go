@@ -117,6 +117,7 @@ func (m *Server) Listen() {
 			for i := 0; i < l; i++ {
 				m.delClient <- clients[i]
 			}
+			close(m.messageQueue)
 			return
 		default:
 			time.Sleep(time.Millisecond)
