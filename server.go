@@ -153,6 +153,12 @@ func broadcast(clients []*Client, msg *ResponseMessage) {
 				}
 			}
 		}
+	case Another:
+		for _, c := range clients {
+			if c.ID != msg.SenderID {
+				castFor = append(castFor, c)
+			}
+		}
 	default:
 		castFor = clients
 	}

@@ -6,6 +6,7 @@ const (
 	All CastType = iota + 1
 	Self
 	Exclusive
+	Another
 )
 
 type RequestMessage struct {
