@@ -132,7 +132,7 @@ func (m *Server) emit(cid ClientID, et EventType) {
 		} else {
 			res.SenderID = cid
 			res.HandlerID = 0
-			m.OnBroadCast(res)
+			go m.OnBroadCast(res)
 		}
 	}
 }
