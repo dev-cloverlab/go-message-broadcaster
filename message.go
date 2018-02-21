@@ -23,6 +23,7 @@ type ResponseMessage struct {
 	Body      []byte
 }
 
+type ResponseMessages []*ResponseMessage
 func NewResponseMessage(ct CastType, body []byte, cf ...ClientID) *ResponseMessage {
 	return &ResponseMessage{
 		CastType: ct,
