@@ -57,11 +57,6 @@ func (m *Client) listenWrite() {
 			if err != nil {
 				m.sv.OnError(err)
 			}
-		case e := <-m.event:
-			err := m.conn.SendEvent(e)
-			if err != nil {
-				m.sv.OnError(err)
-			}
 		case <-m.delete:
 			return
 		default:

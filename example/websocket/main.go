@@ -18,10 +18,6 @@ func (c Conn) SendMessage(msg *broadcaster.ResponseMessage) error {
 	return websocket.JSON.Send(c.ws, msg)
 }
 
-func (c Conn) SendEvent(e *broadcaster.EventMessage) error {
-	return websocket.JSON.Send(c.ws, e)
-}
-
 func (c Conn) Receive() (*broadcaster.RequestMessage, error) {
 	msg := &broadcaster.RequestMessage{}
 	err := websocket.JSON.Receive(c.ws, msg)
