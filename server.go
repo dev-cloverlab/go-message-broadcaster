@@ -40,12 +40,15 @@ func NewServer(ctx context.Context, messageHandlers MessageHandlers, eventHandle
 	go func() {
 		for msg := range sv.messageQueue {
 			if cmd, ok := messageHandlers[msg.HandlerID]; ok {
-				if res, err := cmd(msg, ctx); err != nil {
+				if msgs, err := cmd(msg, ctx); err != nil {
 					sv.OnError(err)
 				} else {
-					res.SenderID = msg.SenderID
-					res.HandlerID = msg.HandlerID
-					sv.OnBroadCast(res)
+					for _, m := range msgs {
+						m.SenderID = msg.SenderID
+						m.EventType = NotEvent
+						m.HandlerID = msg.HandlerID
+						sv.OnBroadCast(m)
+					}
 				}
 			} else {
 				sv.OnError(fmt.Errorf("undefined message handler specified `%d'", msg.HandlerID))
@@ -127,12 +130,14 @@ func (m *Server) Listen() {
 
 func (m *Server) emit(clients []*Client, cid ClientID, et EventType) {
 	if fn, ok := m.eventHandlers[et]; ok {
-		if res, err := fn(NewEventMessage(et, cid), m.ctx); err != nil {
+		if msgs, err := fn(NewEventMessage(et, cid), m.ctx); err != nil {
 			m.OnError(err)
 		} else {
-			res.SenderID = cid
-			res.HandlerID = 0
-			broadcast(clients, res)
+			for _, m := range msgs {
+				m.SenderID = cid
+				m.EventType = et
+				broadcast(clients, m)
+			}
 		}
 	}
 }

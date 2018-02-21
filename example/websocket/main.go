@@ -35,21 +35,27 @@ func main() {
 
 	// Create message handlers for each message
 	messageHandlers := broadcaster.MessageHandlers{
-		1: func(msg *broadcaster.RequestMessage, c context.Context) (*broadcaster.ResponseMessage, error) {
+		1: func(msg *broadcaster.RequestMessage, c context.Context) (broadcaster.ResponseMessages, error) {
 			// Create broadcasting message object (This is simple echo handler).
-			return broadcaster.NewResponseMessage(broadcaster.All, msg.Body), nil
+			return broadcaster.ResponseMessages{
+				broadcaster.NewResponseMessage(broadcaster.All, msg.Body),
+			}, nil
 		},
 	}
 
 	// Create event handlers for each server event
 	eventHandlers := broadcaster.EventHandlers{
-		broadcaster.OnAddClient: func(msg *broadcaster.EventMessage, c context.Context) (*broadcaster.ResponseMessage, error) {
+		broadcaster.OnAddClient: func(msg *broadcaster.EventMessage, c context.Context) (broadcaster.ResponseMessages, error) {
 			// Create broadcasting message object (This is simple echo handler).
-			return broadcaster.NewResponseMessage(broadcaster.All, []byte("OnAddClient")), nil
+			return broadcaster.ResponseMessages{
+				broadcaster.NewResponseMessage(broadcaster.All, []byte("OnAddClient")),
+			}, nil
 		},
-		broadcaster.OnDelClient: func(msg *broadcaster.EventMessage, c context.Context) (*broadcaster.ResponseMessage, error) {
+		broadcaster.OnDelClient: func(msg *broadcaster.EventMessage, c context.Context) (broadcaster.ResponseMessages, error) {
 			// Create broadcasting message object (This is simple echo handler).
-			return broadcaster.NewResponseMessage(broadcaster.All, []byte("OnDelClient")), nil
+			return broadcaster.ResponseMessages{
+				broadcaster.NewResponseMessage(broadcaster.All, []byte("OnDelClient")),
+			}, nil
 		},
 	}
 

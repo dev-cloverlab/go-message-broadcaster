@@ -17,6 +17,7 @@ type RequestMessage struct {
 
 type ResponseMessage struct {
 	SenderID  ClientID
+	EventType EventType
 	HandlerID MessageHandlerID
 	CastType  CastType
 	CastFor   []ClientID
@@ -24,6 +25,7 @@ type ResponseMessage struct {
 }
 
 type ResponseMessages []*ResponseMessage
+
 func NewResponseMessage(ct CastType, body []byte, cf ...ClientID) *ResponseMessage {
 	return &ResponseMessage{
 		CastType: ct,
