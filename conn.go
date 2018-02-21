@@ -1,7 +1,7 @@
 package broadcaster
 
 type Conn interface {
-	SendMessage(*ResponseMessage) error
+	Send(*ResponseMessage) error
 	Receive() (*RequestMessage, error)
 	Close() error
 }

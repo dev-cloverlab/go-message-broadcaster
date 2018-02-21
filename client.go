@@ -53,7 +53,7 @@ func (m *Client) listenWrite() {
 	for {
 		select {
 		case msg := <-m.message:
-			err := m.conn.SendMessage(msg)
+			err := m.conn.Send(msg)
 			if err != nil {
 				m.sv.OnError(err)
 			}

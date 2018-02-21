@@ -14,7 +14,7 @@ type Conn struct {
 	ws *websocket.Conn
 }
 
-func (c Conn) SendMessage(msg *broadcaster.ResponseMessage) error {
+func (c Conn) Send(msg *broadcaster.ResponseMessage) error {
 	return websocket.JSON.Send(c.ws, msg)
 }
 
