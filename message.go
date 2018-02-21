@@ -34,7 +34,8 @@ func NewResponseMessage(ct CastType, body []byte, cf ...ClientID) *ResponseMessa
 type EventType int
 
 const (
-	OnAddClient EventType = iota + 1
+	NotEvent EventType = iota
+	OnAddClient
 	OnDelClient
 )
 
