@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"time"
 )
 
 type ClientID string
@@ -60,8 +59,6 @@ func (m *Client) listenWrite() {
 			}
 		case <-m.delete:
 			return
-		default:
-			time.Sleep(time.Millisecond)
 		}
 	}
 }

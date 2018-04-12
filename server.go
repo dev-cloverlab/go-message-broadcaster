@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 )
 
 type Server struct {
@@ -122,8 +121,6 @@ func (m *Server) Listen() {
 			}
 			close(m.messageQueue)
 			return
-		default:
-			time.Sleep(time.Millisecond)
 		}
 	}
 }
