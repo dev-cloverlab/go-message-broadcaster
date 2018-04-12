@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"log"
 	"time"
 )
 
@@ -37,7 +38,7 @@ func (m *Client) OnSend(msg *ResponseMessage) {
 
 func (m *Client) OnDelete() {
 	if err := m.conn.Close(); err != nil {
-		m.sv.OnError(err)
+		log.Printf("connection close failed: client id %s", m.ID)
 	}
 	m.delete <- struct{}{}
 	close(m.close)
