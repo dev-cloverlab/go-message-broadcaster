@@ -32,7 +32,12 @@ func NewClient(conn Conn, sv *Server) *Client {
 }
 
 func (m *Client) OnSend(msg *ResponseMessage) {
-	m.message <- msg
+	select {
+	case <-m.close:
+		return
+	default:
+		m.message <- msg
+	}
 }
 
 func (m *Client) OnDelete() {
