@@ -76,7 +76,7 @@ func (m *Client) listenRead() {
 			return
 		} else if err != nil {
 			m.sv.OnError(err)
-		} else {
+		} else if msg != nil {
 			msg.SenderID = m.ID
 			m.sv.OnEnqueueMessage(msg)
 		}
