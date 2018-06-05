@@ -71,12 +71,15 @@ func (m *Client) listenWrite() {
 func (m *Client) listenRead() {
 	for {
 		msg, err := m.conn.Receive()
+
 		if err == io.EOF {
 			m.sv.OnDelClient(m)
 			return
 		} else if err != nil {
 			m.sv.OnError(err)
-		} else {
+		}
+
+		if msg != nil {
 			msg.SenderID = m.ID
 			m.sv.OnEnqueueMessage(msg)
 		}

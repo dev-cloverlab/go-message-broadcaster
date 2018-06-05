@@ -161,7 +161,7 @@ These event handlers are called when the client adding or deleting.
 
 # Contribution
 
-1. Fork ([https://github.com/dev-cloverlab/carpenter/cmd/carpenter/fork](https://github.com/dev-cloverlab/carpenter/cmd/carpenter/fork))
+1. Fork ([https://github.com/dev-cloverlab/go-message-broadcaster/fork](https://github.com/dev-cloverlab/go-message-broadcaster/fork))
 1. Create a feature branch
 1. Commit your changes
 1. Rebase your local changes against the master branch
