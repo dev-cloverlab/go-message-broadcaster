@@ -72,7 +72,6 @@ func (m *Client) listenRead() {
 	for {
 		msg, err := m.conn.Receive()
 
-		// This block is error handling
 		if err == io.EOF {
 			m.sv.OnDelClient(m)
 			return
@@ -80,7 +79,6 @@ func (m *Client) listenRead() {
 			m.sv.OnError(err)
 		}
 
-		// This block is empty message checking
 		if msg != nil {
 			msg.SenderID = m.ID
 			m.sv.OnEnqueueMessage(msg)
