@@ -38,6 +38,10 @@ func NewServer(ctx context.Context, messageHandlers MessageHandlers, eventHandle
 
 	go func() {
 		for msg := range sv.messageQueue {
+			if msg == nil {
+				sv.OnError(fmt.Errorf("msg is nil"))
+				continue
+			}
 			if cmd, ok := messageHandlers[msg.HandlerID]; ok {
 				if msgs, err := cmd(msg, ctx); err != nil {
 					sv.OnError(err)
